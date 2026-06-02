@@ -6,7 +6,7 @@ Hidden Daily Achievements turns normal team work into a lightweight hidden-achie
 
 Every workday the agent silently creates a private deck of hidden achievements, seals it so awards cannot be invented later, watches normal team events during the day, and reveals only the achievements that were actually opened.
 
-No morning teaser. No leaked conditions. No retroactive awards.
+**No morning teaser. No leaked conditions. No retroactive awards.**
 
 ## How It Feels For The Team
 
@@ -26,14 +26,14 @@ If an achievement opens, the agent may announce it immediately when it is rare o
 Example evening summary:
 
 ```text
-Hidden achievements today
+🎮 Hidden achievements today
 Opened: 5 / 12
 
-@user1 - "Fog Cutter"
-@user2 - "Blocker Named"
-Team - "All Signals Green"
+🔍 @user1 - "Fog Cutter"
+🧱 @user2 - "Blocker Named"
+✅ Team - "All Signals Green"
 
-7 achievements remained hidden.
+7 achievements remained hidden 🔒
 ```
 
 Locked titles and locked conditions stay hidden.
@@ -42,79 +42,134 @@ Locked titles and locked conditions stay hidden.
 
 These are examples of the kind of hidden achievements the skill can generate. The actual daily deck is private and based on the team's current brief, tasks, blockers, and context.
 
-### Operations
+### ⚙️ Operations
 
-**Blocker Named**
+#### 🧱 Blocker Named
+
+> Make the invisible obstacle visible.
 
 A user clearly states a blocker, its cause, and the next action needed.
 
-Trigger examples:
+**Trigger examples**
 
-- a task is moved to `Blocked` with a useful explanation;
-- a chat message explains what is blocked, why, and who or what is needed next.
+- 🧩 A task is moved to `Blocked` with a useful explanation.
+- 🧭 A chat message explains what is blocked, why, and who or what is needed next.
 
-### Communication
+**Possible public reveal**
 
-**Fog Cutter**
+```text
+🧱 @user2 opened "Blocker Named".
+Obstacle identified: cause, owner, and next step are now visible.
+```
+
+### 💬 Communication
+
+#### 🔍 Fog Cutter
+
+> Turn messy discussion into an executable next step.
 
 A user turns a fuzzy discussion into a decision, owner, next step, and deadline.
 
-Trigger examples:
+**Trigger examples**
 
-- a chat thread is summarized into a concrete action plan;
-- a task comment captures the decision and owner after a scattered discussion.
+- 🧵 A chat thread is summarized into a concrete action plan.
+- 📌 A task comment captures the decision and owner after a scattered discussion.
 
-### Knowledge
+**Possible public reveal**
 
-**Context Preserved**
+```text
+🔍 @user1 opened "Fog Cutter".
+The decision, owner, next step, and deadline are now clear.
+```
+
+### 📚 Knowledge
+
+#### 🗂️ Context Preserved
+
+> Save the reason, not just the result.
 
 A user records a decision, tradeoff, or operational insight in a knowledge base or decision log.
 
-Trigger examples:
+**Trigger examples**
 
-- a decision log entry is created from a chat discussion;
-- a task is linked to a relevant document with a useful explanation.
+- 📝 A decision log entry is created from a chat discussion.
+- 🔗 A task is linked to a relevant document with a useful explanation.
 
-### Role Or Domain
+**Possible public reveal**
 
-**Signal Broker**
+```text
+🗂️ @user3 opened "Context Preserved".
+The team can now find the decision without replaying the whole thread.
+```
+
+### 🎯 Role Or Domain
+
+#### 📡 Signal Broker
+
+> Connect a domain signal to today's work.
 
 A user connects a domain-specific signal to today's project priority.
 
-Trigger examples:
+**Trigger examples**
 
-- a customer insight is attached to an active product task;
-- an engineering risk is connected to a deployment or integration plan.
+- 👤 A customer insight is attached to an active product task.
+- 🚢 An engineering risk is connected to a deployment or integration plan.
 
-### Team
+**Possible public reveal**
 
-**All Signals Green**
+```text
+📡 @user1 opened "Signal Broker".
+Useful domain signal connected to today's priority.
+```
+
+### 🤝 Team
+
+#### ✅ All Signals Green
+
+> Close the loop together.
 
 Multiple people coordinate to close a shared operational loop.
 
-Trigger examples:
+**Trigger examples**
 
-- one person identifies a blocker, another resolves it, and a third updates the task state;
-- the team aligns owner, deadline, and next step for a priority item.
+- 🧱 One person identifies a blocker, another resolves it, and a third updates the task state.
+- 🗓️ The team aligns owner, deadline, and next step for a priority item.
 
-### Weird
+**Possible public reveal**
 
-**Capybara Of Context**
+```text
+✅ Team opened "All Signals Green".
+The operational loop is closed: owner, status, and next step are aligned.
+```
+
+### 🌀 Weird
+
+#### 🦫 Capybara Of Context
+
+> Be strange, but useful.
 
 A user mentions an unusual word such as `capybara` in a message that also contains useful work context.
 
 This is not awarded for the word alone.
 
-Good:
+**Good**
 
 ```text
-Capybara of conversion: 2 of 5 pilot users dropped at payment step; added this to TASK-123 and proposed a fix.
+🦫 Capybara of conversion: 2 of 5 pilot users dropped at payment step;
+added this to TASK-123 and proposed a fix.
 ```
 
-Bad:
+**Bad**
 
 ```text
-capybara capybara capybara
+🦫 capybara capybara capybara
+```
+
+**Possible public reveal**
+
+```text
+🦫 @user2 opened legendary hidden achievement "Capybara Of Context".
+The metrics are useful. The mascot is unexplained.
 ```
 
 ## What The Skill Prevents

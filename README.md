@@ -37,7 +37,6 @@ This skill treats hidden achievements as a small protocol, not just a prompt. It
 | Prompts | [references/prompts.md](references/prompts.md) |
 | Example deck fragment | [examples/daily-deck-fragment.yml](examples/daily-deck-fragment.yml) |
 | Behavioral evals | [evals/evals.json](evals/evals.json) |
-| Launch and directory copy | [docs/launch-kit.md](docs/launch-kit.md) |
 
 ## How It Feels For The Team
 
@@ -298,8 +297,6 @@ Use $hidden-daily-achievements to add sealed hidden daily achievements to a team
 │   └── daily-deck-fragment.yml
 ├── evals/
 │   └── evals.json
-├── docs/
-│   └── launch-kit.md
 └── scripts/
     └── validate-skill.sh
 ```

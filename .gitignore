@@ -30,6 +30,7 @@ knowledge/gamification/public-ledger.md
 .agentplane/by-status
 .agentplane/by-tag
 .agentplane/by-owner
+.agentplane/tasks/
 .agentplane/tasks/*/handoff
 AGENTS.md.bak-*
 CLAUDE.md.bak-*

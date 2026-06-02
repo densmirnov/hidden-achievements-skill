@@ -1,8 +1,130 @@
+![Hidden Daily Achievements](header.png)
+
 # Hidden Daily Achievements Skill
 
-A Codex skill for building and operating sealed hidden daily achievements for team agents.
+Hidden Daily Achievements turns normal team work into a lightweight hidden-achievement game.
 
-The skill defines a portable protocol for generating a private daily achievement deck, sealing it with a public commitment, evaluating chat/task/project-board/knowledge-base events, preventing retroactive awards, and summarizing only opened achievements.
+Every workday the agent silently creates a private deck of hidden achievements, seals it so awards cannot be invented later, watches normal team events during the day, and reveals only the achievements that were actually opened.
+
+No morning teaser. No leaked conditions. No retroactive awards.
+
+## How It Feels For The Team
+
+The team just works in chat and task tools as usual.
+
+In the background, the agent may notice useful behavior:
+
+- someone turns a messy discussion into a clear decision;
+- someone names a blocker with cause and next step;
+- someone moves a stale task forward;
+- someone captures a useful customer or product signal;
+- the team resolves an operational risk together;
+- someone triggers a rare weird achievement with an unusual phrase plus real work.
+
+If an achievement opens, the agent may announce it immediately when it is rare or important. Most opened achievements are batched into the evening summary.
+
+Example evening summary:
+
+```text
+Hidden achievements today
+Opened: 5 / 12
+
+@user1 - "Fog Cutter"
+@user2 - "Blocker Named"
+Team - "All Signals Green"
+
+7 achievements remained hidden.
+```
+
+Locked titles and locked conditions stay hidden.
+
+## Example Achievements
+
+These are examples of the kind of hidden achievements the skill can generate. The actual daily deck is private and based on the team's current brief, tasks, blockers, and context.
+
+### Operations
+
+**Blocker Named**
+
+A user clearly states a blocker, its cause, and the next action needed.
+
+Trigger examples:
+
+- a task is moved to `Blocked` with a useful explanation;
+- a chat message explains what is blocked, why, and who or what is needed next.
+
+### Communication
+
+**Fog Cutter**
+
+A user turns a fuzzy discussion into a decision, owner, next step, and deadline.
+
+Trigger examples:
+
+- a chat thread is summarized into a concrete action plan;
+- a task comment captures the decision and owner after a scattered discussion.
+
+### Knowledge
+
+**Context Preserved**
+
+A user records a decision, tradeoff, or operational insight in a knowledge base or decision log.
+
+Trigger examples:
+
+- a decision log entry is created from a chat discussion;
+- a task is linked to a relevant document with a useful explanation.
+
+### Role Or Domain
+
+**Signal Broker**
+
+A user connects a domain-specific signal to today's project priority.
+
+Trigger examples:
+
+- a customer insight is attached to an active product task;
+- an engineering risk is connected to a deployment or integration plan.
+
+### Team
+
+**All Signals Green**
+
+Multiple people coordinate to close a shared operational loop.
+
+Trigger examples:
+
+- one person identifies a blocker, another resolves it, and a third updates the task state;
+- the team aligns owner, deadline, and next step for a priority item.
+
+### Weird
+
+**Capybara Of Context**
+
+A user mentions an unusual word such as `capybara` in a message that also contains useful work context.
+
+This is not awarded for the word alone.
+
+Good:
+
+```text
+Capybara of conversion: 2 of 5 pilot users dropped at payment step; added this to TASK-123 and proposed a fix.
+```
+
+Bad:
+
+```text
+capybara capybara capybara
+```
+
+## What The Skill Prevents
+
+- Retroactive achievement creation after an impressive event.
+- Keyword farming and meme spam.
+- Status churn such as moving tasks back and forth.
+- Rewards for being always online or working late.
+- Public leaks of hidden titles, hidden conditions, private evidence, or verifier reasoning.
+- Prompt injection from task comments, chat messages, documents, URLs, or user-authored metadata.
 
 ## What It Covers
 
@@ -15,6 +137,23 @@ The skill defines a portable protocol for generating a private daily achievement
 - Strict verifier prompts and award threshold
 - Private evidence ledger and public opened-awards ledger
 - Behavioral evals for common regressions
+
+## Installation
+
+For full agent integration instructions, see [INSTALL.md](INSTALL.md).
+
+Quick install:
+
+```bash
+git clone https://github.com/densmirnov/hidden-achievements-skill.git \
+  "${CODEX_HOME:-$HOME/.codex}/skills/hidden-achievements-skill"
+```
+
+Then invoke the skill explicitly:
+
+```text
+Use $hidden-daily-achievements to add sealed hidden daily achievements to a team agent.
+```
 
 ## Repository Layout
 
@@ -36,34 +175,6 @@ The skill defines a portable protocol for generating a private daily achievement
     └── validate-skill.sh
 ```
 
-## Installation
-
-For full agent integration instructions, see [INSTALL.md](INSTALL.md).
-
-Quick install:
-
-```bash
-git clone https://github.com/densmirnov/hidden-achievements-skill.git \
-  "${CODEX_HOME:-$HOME/.codex}/skills/hidden-achievements-skill"
-```
-
-Then invoke the skill explicitly:
-
-```text
-Use $hidden-daily-achievements to add sealed hidden daily achievements to a team agent.
-```
-
-## Usage
-
-Use this skill when a team agent needs to:
-
-- generate a private daily achievement deck after a daily brief;
-- use a scheduled snapshot when no daily brief exists;
-- evaluate team chat and task events against sealed conditions;
-- prevent keyword farming, status churn, and retroactive awards;
-- keep private conditions and evidence out of public channels;
-- produce an evening summary of opened achievements only.
-
 The main entrypoint is [SKILL.md](SKILL.md). Detailed schemas, prompts, and policies live under [references/](references/).
 
 ## Validation
@@ -79,8 +190,8 @@ The validation checks:
 - `SKILL.md` frontmatter shape and naming rules;
 - YAML parsing for `agents/openai.yaml` and example deck fragments;
 - JSON parsing for evals;
-- absence of common macOS/editor artifacts;
-- absence of outdated protocol markers from earlier seal formats.
+- tracked macOS/editor artifacts;
+- outdated protocol markers from earlier seal formats.
 
 ## Design Notes
 

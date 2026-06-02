@@ -1,10 +1,11 @@
 ---
 id: "202606021943-MZ08ZH"
 title: "Remove unnecessary context layer"
-status: "DOING"
+result_summary: "Removed the unnecessary AgentPlane context layer and kept the base AgentPlane installation."
+status: "DONE"
 priority: "med"
 owner: "CODER"
-revision: 6
+revision: 8
 origin:
   system: "manual"
 depends_on: []
@@ -28,26 +29,31 @@ verification:
   attempts: 0
 quality_review:
   state: "pass"
-  updated_at: "2026-06-02T19:45:33.365Z"
+  updated_at: "2026-06-02T19:46:15.153Z"
   updated_by: "EVALUATOR"
-  note: "Context layer removal is scoped and verified."
-  evaluated_sha: "5a07544a88e5c1e8b67891ad895a1f9bd644fa68"
+  note: "Context layer removal is scoped and verified at current commit."
+  evaluated_sha: "cbada4e0ffea729f98f06de1683245819be3beb7"
   blueprint_digest: "8a5cd17364a6a9ec635b07604e8262682ebed785f887cdf4015627c612895da2"
   evidence_refs:
     - ".agentplane/tasks/202606021943-MZ08ZH/README.md"
-    - ".agentplane/tasks/202606021943-MZ08ZH/quality/20260602-194533365-recovery-context/quality-report.json"
-    - ".agentplane/tasks/202606021943-MZ08ZH/quality/20260602-194533365-recovery-context/evaluator-prompt.md"
-    - ".agentplane/tasks/202606021943-MZ08ZH/quality/20260602-194533365-recovery-context/evaluator-opinion.md"
+    - ".agentplane/tasks/202606021943-MZ08ZH/quality/20260602-194615153-recovery-context/quality-report.json"
+    - ".agentplane/tasks/202606021943-MZ08ZH/quality/20260602-194615153-recovery-context/evaluator-prompt.md"
+    - ".agentplane/tasks/202606021943-MZ08ZH/quality/20260602-194615153-recovery-context/evaluator-opinion.md"
     - ".agentplane/tasks/202606021943-MZ08ZH/blueprint/resolved-snapshot.json"
     - "scripts/validate-skill.sh"
     - "ap doctor"
   findings:
-    - "context/ and .agentplane/context are absent while .agentplane base harness remains; scripts/validate-skill.sh and ap doctor passed."
-commit: null
+    - "At cbada4e, context/ and .agentplane/context are absent while base .agentplane remains; scripts/validate-skill.sh and ap doctor passed."
+commit:
+  hash: "cbada4e0ffea729f98f06de1683245819be3beb7"
+  message: "🚧 MZ08ZH ops: remove context layer"
 comments:
   -
     author: "CODER"
     body: "Start: Remove unnecessary context layer. Guided shortcut created the task, approved the plan, and entered execution."
+  -
+    author: "CODER"
+    body: "Verified: scripts/validate-skill.sh and ap doctor passed; context/ and .agentplane/context are absent; base AgentPlane harness remains installed."
 events:
   -
     type: "status"
@@ -62,8 +68,15 @@ events:
     author: "CODER"
     state: "ok"
     note: "scripts/validate-skill.sh and ap doctor passed; context/ and .agentplane/context are absent; base .agentplane harness remains installed."
+  -
+    type: "status"
+    at: "2026-06-02T19:46:20.739Z"
+    author: "CODER"
+    from: "DOING"
+    to: "DONE"
+    note: "Verified: scripts/validate-skill.sh and ap doctor passed; context/ and .agentplane/context are absent; base AgentPlane harness remains installed."
 doc_version: 3
-doc_updated_at: "2026-06-02T19:44:19.627Z"
+doc_updated_at: "2026-06-02T19:46:20.740Z"
 doc_updated_by: "CODER"
 description: "Revert the AgentPlane context bootstrap while keeping the base AgentPlane harness installed."
 sections:

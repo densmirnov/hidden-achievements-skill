@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "202606021943-MZ08ZH",
+  "evaluator_id": "recovery-context",
+  "evaluator_profile": "EVALUATOR",
+  "generated_at": "2026-06-02T19:46:15.153Z",
+  "verdict": "pass",
+  "summary": "Context layer removal is scoped and verified at current commit.",
+  "evaluated_sha": "cbada4e0ffea729f98f06de1683245819be3beb7",
+  "blueprint_digest": "8a5cd17364a6a9ec635b07604e8262682ebed785f887cdf4015627c612895da2",
+  "findings": [
+    "At cbada4e, context/ and .agentplane/context are absent while base .agentplane remains; scripts/validate-skill.sh and ap doctor passed."
+  ],
+  "evidence_refs": [
+    ".agentplane/tasks/202606021943-MZ08ZH/README.md",
+    "scripts/validate-skill.sh",
+    "ap doctor"
+  ],
+  "missing_tests": [],
+  "hidden_assumptions": [],
+  "residual_risks": []
+}

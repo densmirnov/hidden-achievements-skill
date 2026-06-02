@@ -2,6 +2,7 @@ version: 1
 date: "2026-01-15"
 timezone: "Etc/UTC"
 generated_at: "2026-01-15T09:05:00+00:00"
+effective_from: "2026-01-15T09:06:00+00:00"
 expires_at: "2026-01-15T23:59:59+00:00"
 public_generation_announcement: false
 source:
@@ -13,9 +14,13 @@ settings:
   achievement_count: 12
   strict_count_mode: false
   max_instant_announcements_per_day: 4
+  trust_mode: "public_commitment_required"
   reveal_locked_at_evening: false
 seal:
-  seal_nonce: "base64url-example-128-bit-or-stronger-random"
+  nonce_required: true
+  nonce_generated_by: "runtime_csprng"
+  nonce_bytes_min: 16
+  seal_nonce: "runtime-private-example-nonce"
   canonicalization:
     json_object_keys: "lexicographic"
     encoding: "UTF-8"
@@ -29,7 +34,9 @@ achievements:
     category: "communication"
     rarity: "uncommon"
     scope: "personal"
-    eligible_users: ["@user1", "@user2", "@user3"]
+    eligible_user_ids: ["user_1", "user_2", "user_3"]
+    display:
+      allowed_chat_handles: ["@user1", "@user2", "@user3"]
     target_context:
       focus_terms: ["decision", "owner", "deadline", "next step"]
       related_tasks: []
@@ -48,6 +55,7 @@ achievements:
       type: "llm_strict"
       require_meaningful_progress: true
       reject_if_only_mentions_keyword: true
+      allow_system_events: false
     anti_spam:
       once_per_user_per_day: true
       once_per_achievement_per_day: false
@@ -65,7 +73,9 @@ achievements:
     category: "operations"
     rarity: "common"
     scope: "personal"
-    eligible_users: ["@user1", "@user2", "@user3"]
+    eligible_user_ids: ["user_1", "user_2", "user_3"]
+    display:
+      allowed_chat_handles: ["@user1", "@user2", "@user3"]
     target_context:
       focus_terms: ["blocked", "need answer", "waiting", "risk"]
       related_tasks: []
@@ -83,6 +93,7 @@ achievements:
       type: "hybrid"
       require_meaningful_progress: true
       reject_if_only_mentions_keyword: true
+      allow_system_events: false
     anti_spam:
       once_per_user_per_day: true
       once_per_achievement_per_day: false
@@ -100,7 +111,9 @@ achievements:
     category: "weird"
     rarity: "legendary"
     scope: "personal"
-    eligible_users: ["@user1", "@user2", "@user3"]
+    eligible_user_ids: ["user_1", "user_2", "user_3"]
+    display:
+      allowed_chat_handles: ["@user1", "@user2", "@user3"]
     target_context:
       focus_terms: ["capybara", "customer", "delivery", "decision", "metric"]
       related_tasks: []
@@ -121,6 +134,7 @@ achievements:
       type: "llm_strict"
       require_meaningful_progress: true
       reject_if_only_mentions_keyword: true
+      allow_system_events: false
     anti_spam:
       once_per_user_per_day: true
       once_per_achievement_per_day: true

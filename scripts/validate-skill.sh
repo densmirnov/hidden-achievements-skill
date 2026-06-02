@@ -63,6 +63,94 @@ ruby -e 'require "psych"; Psych.load_file("agents/openai.yaml"); Psych.load_file
 jq . evals/evals.json >/dev/null
 printf 'json ok\n'
 
+python3 - <<'PY'
+from pathlib import Path
+import json
+import re
+
+def read(path):
+    return Path(path).read_text(encoding="utf-8")
+
+skill = read("SKILL.md")
+schemas = read("references/schemas.md")
+policies = read("references/policies.md")
+prompts = read("references/prompts.md")
+example = read("examples/daily-deck-fragment.yml")
+install = read("INSTALL.md")
+evals = json.loads(read("evals/evals.json"))
+
+required_markers = {
+    "SKILL.md": [
+        "runtime CSPRNG",
+        "private_only_dev",
+        "deck.effective_from <= event.occurred_at <= deck.expires_at",
+        "canonical `actor.user_id`",
+        "bot, automation, and system events",
+    ],
+    "references/schemas.md": [
+        "effective_from",
+        "nonce_generated_by: \"runtime_csprng\"",
+        "public_seal:",
+        "sealed_payload = private_daily_deck excluding:",
+        "eligible_user_ids",
+        "privacy:",
+    ],
+    "references/policies.md": [
+        "achievement.announce.mode != evening_batch",
+        "manual_admin_correction",
+        "metadata.bot_or_system_event != true",
+        "Privacy and retention policy",
+        "Leaderboard policy",
+    ],
+    "references/prompts.md": [
+        "Do not generate or invent a seal nonce",
+        "nonce_generated_by: \"runtime_csprng\"",
+        "eligible_user_ids",
+        "deck.effective_from <= event.occurred_at <= deck.expires_at",
+    ],
+    "INSTALL.md": [
+        "Non-Codex Agent Integration",
+        "Adapter Mapping Examples",
+        "commitment = sha256(canonical_json(sealed_payload)",
+    ],
+    "examples/daily-deck-fragment.yml": [
+        "effective_from:",
+        "nonce_generated_by: \"runtime_csprng\"",
+        "eligible_user_ids:",
+    ],
+}
+
+contents = {
+    "SKILL.md": skill,
+    "references/schemas.md": schemas,
+    "references/policies.md": policies,
+    "references/prompts.md": prompts,
+    "INSTALL.md": install,
+    "examples/daily-deck-fragment.yml": example,
+}
+
+for path, markers in required_markers.items():
+    for marker in markers:
+        if marker not in contents[path]:
+            raise SystemExit(f"{path} is missing required protocol marker: {marker}")
+
+if re.search(r"seal:\s*\n\s*seal_nonce: \"base64url", prompts):
+    raise SystemExit("Prompt still asks the LLM to generate a concrete seal_nonce")
+
+example_ids = {item["id"] for item in evals["evals"]}
+for required_eval in {
+    "runtime_nonce_required",
+    "effective_window_rejects_early_event",
+    "manual_award_cannot_bypass_seal",
+    "bot_system_event_rejected",
+    "eligible_by_canonical_user_id",
+}:
+    if required_eval not in example_ids:
+        raise SystemExit(f"evals/evals.json is missing {required_eval}")
+
+print("protocol markers ok")
+PY
+
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   if git ls-files | grep -E '(^|/)(\.DS_Store|.*\.swp|.*\.swo)$' >/dev/null; then
     fail "tracked editor or OS artifact found"
@@ -71,7 +159,7 @@ elif find . -path './.git' -prune -o \( -name '.DS_Store' -o -name '*.swp' -o -n
   fail "workspace contains editor or OS artifacts"
 fi
 
-if grep -R -nE 'deck_sha256|Require as many|Generate exactly 12|Deck contains exactly 12|version: 0\.' \
+if grep -R -nE 'deck_sha256|Require as many|Generate exactly 12|Deck contains exactly 12|version: 0\.|eligible_users|base64url-128-bit-or-stronger-random' \
   SKILL.md references examples evals agents README.md >/tmp/hidden-achievements-skill-grep.txt; then
   cat /tmp/hidden-achievements-skill-grep.txt >&2
   fail "outdated protocol marker found"

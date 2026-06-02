@@ -29,6 +29,7 @@ skill_config:
   daily_brief_event: "daily_brief_sent"
   evening_summary_event: "evening_summary_started"
   public_generation_announcement: false
+  trust_mode: "public_commitment_required"
   reveal_locked_at_evening: false
   max_instant_announcements_per_day: 4
   default_language: "en"
@@ -49,6 +50,13 @@ skill_config:
     system: "generic_git_or_docs"
     public_path: "knowledge/gamification/"
     private_runtime_path: "runtime/gamification/"
+  privacy:
+    private_evidence_retention_days: 30
+    store_raw_text: false
+    store_event_hash: true
+    store_source_pointer: true
+    redact_customer_names_in_public: true
+    allow_admin_private_audit: true
   team_profile:
     members:
       - id: "user_1"
@@ -217,6 +225,7 @@ version: 1
 date: "YYYY-MM-DD"
 timezone: "Etc/UTC"
 generated_at: "YYYY-MM-DDTHH:MM:SS+00:00"
+effective_from: "YYYY-MM-DDTHH:MM:SS+00:00"
 expires_at: "YYYY-MM-DDT23:59:59+00:00"
 public_generation_announcement: false
 source:
@@ -228,9 +237,13 @@ settings:
   achievement_count: 12
   strict_count_mode: false
   max_instant_announcements_per_day: 4
+  trust_mode: "public_commitment_required|private_only_dev"
   reveal_locked_at_evening: false
 seal:
-  seal_nonce: "base64url-128-bit-or-stronger-random"
+  nonce_required: true
+  nonce_generated_by: "runtime_csprng"
+  nonce_bytes_min: 16
+  seal_nonce: "{{runtime_inserted_private_nonce}}"
   canonicalization:
     json_object_keys: "lexicographic"
     encoding: "UTF-8"
@@ -244,7 +257,9 @@ achievements:
     category: "operations"
     rarity: "common"
     scope: "personal"
-    eligible_users: ["@user1", "@user2", "@user3"]
+    eligible_user_ids: ["user_1", "user_2", "user_3"]
+    display:
+      allowed_chat_handles: ["@user1", "@user2", "@user3"]
     target_context:
       focus_terms: []
       related_tasks: []
@@ -257,6 +272,7 @@ achievements:
       type: "deterministic"
       require_meaningful_progress: true
       reject_if_only_mentions_keyword: true
+      allow_system_events: false
     anti_spam:
       once_per_user_per_day: true
       once_per_achievement_per_day: false
@@ -268,6 +284,46 @@ achievements:
       mode: "evening_batch"
       text: "✨ @{user} opened hidden achievement: “{title}”. {short_reason}"
 ```
+
+The LLM returns a valid private deck draft with `seal.nonce_required: true` and without a concrete nonce value. The runtime must then:
+
+1. generate `seal_nonce` using a cryptographically secure random generator;
+2. insert the nonce only into private runtime state;
+3. compute the public commitment;
+4. write only the public seal;
+5. never expose the nonce unless a configured private admin audit or reveal flow explicitly requires it.
+
+`effective_from` must be the timestamp at which the validated deck becomes sealed and awardable. For scheduled fallback, it must not be earlier than generation completion.
+
+## Public seal schema
+
+```yaml
+public_seal:
+  version: 1
+  date: "YYYY-MM-DD"
+  timezone: "Etc/UTC"
+  algorithm: "sha256"
+  canonicalization: "canonical-json-v1"
+  commitment: "sha256:..."
+  created_at: "YYYY-MM-DDTHH:MM:SS+00:00"
+  deck_effective_from: "YYYY-MM-DDTHH:MM:SS+00:00"
+  deck_expires_at: "YYYY-MM-DDTHH:MM:SS+00:00"
+```
+
+Commitment rule:
+
+```text
+sealed_payload = private_daily_deck excluding:
+- seal.seal_nonce
+- runtime locks
+- award state
+- delivery state
+- mutable verifier outputs
+
+commitment = sha256(canonical_json(sealed_payload) + "\n" + seal_nonce)
+```
+
+Use canonical JSON with lexicographic object keys, UTF-8 encoding, no insignificant whitespace, preserved array order, and ISO-8601 timestamps with timezone. Public seal files must not include hidden titles, private conditions, raw evidence, private source URLs, verifier output, or `seal_nonce`.
 
 Scheduled snapshot fallback source:
 
@@ -372,7 +428,25 @@ Write the public ledger as markdown or JSON without private fields.
 
 The public ledger must not include raw message text, hidden conditions, locked titles, source URLs for private systems, private channel IDs, customer names, verifier confidence, private reasons, or raw evidence.
 
-Correction entry:
+Manual award correction entry:
+
+```json
+{
+  "version": 1,
+  "type": "manual_award",
+  "correction_type": "manual_admin_correction",
+  "date": "YYYY-MM-DD",
+  "achievement_id": "YYYY-MM-DD-short-kebab-id",
+  "user_id": "user_1",
+  "awarded_at": "YYYY-MM-DDTHH:MM:SS+00:00",
+  "source_event_id": "chat:channel:message_id",
+  "event_hash": "sha256:...",
+  "evidence": ["event.text", "event.related_task.id"],
+  "reason": "manual admin correction"
+}
+```
+
+Reversal correction entry:
 
 ```json
 {

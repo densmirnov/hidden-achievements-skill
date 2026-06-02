@@ -25,11 +25,14 @@ Do not enable the skill unless the agent can:
 - read at least one operational source, preferably task events;
 - write private runtime state unavailable to normal users;
 - write an append-only private award ledger;
+- generate high-entropy random bytes through runtime CSPRNG;
 - resolve local date and timezone;
 - map external actors to stable internal user IDs;
 - send messages to the configured team channel.
 
 If private runtime state is unavailable, disable hidden achievements. Do not store hidden decks in public chat, task descriptions, task comments, public documents, or normal team channels.
+
+For normal team operation, require public seal storage. If no public seal storage is available, run only in `private_only_dev` mode and do not claim public anti-retroactive auditability.
 
 ## 3. Prepare Adapters
 
@@ -105,9 +108,10 @@ Preferred path:
 2. Collect the daily brief, current task snapshot, available board/context data, and 14-day ledger summary.
 3. Generate the private deck with `references/prompts.md`.
 4. Validate the deck with `references/policies.md`.
-5. Store the private deck.
-6. Write the public salted commitment.
-7. Send no chat message.
+5. Generate `seal_nonce` through runtime CSPRNG and insert it only into private runtime state.
+6. Store the private deck.
+7. Write the public salted commitment using the `public_seal` schema.
+8. Send no chat message.
 
 Fallback path:
 
@@ -115,6 +119,14 @@ Fallback path:
 2. Use current task snapshot plus unresolved chat context from the previous 24 hours.
 3. Mark `source.type` as `scheduled_snapshot`.
 4. Do not generate after observing a candidate award event.
+
+The LLM must not generate `seal_nonce`; it should only mark that a runtime nonce is required. The runtime computes:
+
+```text
+commitment = sha256(canonical_json(sealed_payload) + "\n" + seal_nonce)
+```
+
+where `sealed_payload` excludes `seal.seal_nonce`, runtime locks, award state, delivery state, and mutable verifier outputs.
 
 ## 7. Configure Event Evaluation
 
@@ -128,6 +140,13 @@ For every relevant chat/task/board/knowledge event:
 6. Award only if policy checks pass.
 7. Append to the private ledger.
 8. Announce only if the announcement policy allows it.
+
+Reject candidate awards when:
+
+- `event.occurred_at` is before `deck.effective_from` or after `deck.expires_at`;
+- identity is missing for a personal achievement;
+- eligibility cannot be matched through canonical `actor.user_id`;
+- `metadata.bot_or_system_event == true`, unless the sealed team achievement explicitly allows system events.
 
 For `llm_strict` and `hybrid` verification, require:
 
@@ -157,7 +176,9 @@ Announce instantly only when:
 
 ```text
 instant_announcements_today < max_instant_announcements_per_day
+AND achievement.announce.mode != evening_batch
 AND (
+  achievement.announce.mode == instant
   rarity in [rare, epic, legendary]
   OR scope == team
   OR event_is_operationally_important_for_the_day == true
@@ -166,7 +187,44 @@ AND (
 
 Batch all other opened achievements into the evening summary.
 
-## 10. Validate Integration
+`event_is_operationally_important_for_the_day` must be backed by normalized event fields showing a material change to today's blocker status, decision clarity, delivery risk, customer-impact understanding, or completion path for a priority item.
+
+## 10. Non-Codex Agent Integration
+
+For non-Codex agents, copy the same package into the agent's instruction or skill registry and preserve the file relationships:
+
+- use `SKILL.md` as the operating contract;
+- load `references/schemas.md` before adapter or storage implementation;
+- load `references/policies.md` before deck validation, award decisions, announcements, admin access, or privacy handling;
+- load `references/prompts.md` only for deck generation, repair, or strict semantic verification;
+- keep `examples/daily-deck-fragment.yml` as a schema example, not as a reusable daily deck.
+
+The runtime, not the LLM, must own durable private state, append-only ledgers, CSPRNG nonce generation, public seal writing, idempotency locks, source event timestamps, and admin identity checks.
+
+## 11. Adapter Mapping Examples
+
+Telegram:
+
+- message ID plus chat ID maps to `event_id`;
+- Telegram user ID maps to canonical `actor.user_id`;
+- bot messages set `metadata.bot_or_system_event: true`;
+- reply/thread metadata maps to `metadata.reply_to_event_id` when available.
+
+Linear/Jira:
+
+- issue or ticket comments map to `task_comment_created`;
+- status transitions map to `task_status_changed`;
+- assignee, priority, labels, deadline, and project fields map into `related_task` and `metadata`;
+- webhook delivery time must not replace source transition/comment time.
+
+GitHub Issues:
+
+- issue comments map to `task_comment_created`;
+- issue state changes map to `task_status_changed` or `task_closed`;
+- issue labels, assignees, milestone, and repository issue number map into `related_task` and `metadata`;
+- bot accounts and GitHub Actions events set `metadata.bot_or_system_event: true`.
+
+## 12. Validate Integration
 
 Before enabling the workflow:
 
@@ -187,7 +245,10 @@ Then dry-run the integration with:
 Expected result:
 
 - hidden deck remains private;
+- seal nonce is private and runtime-generated;
 - public seal contains no hidden conditions;
+- awards only apply inside `effective_from` / `expires_at`;
+- bot/system events receive no personal award;
 - keyword spam receives no award;
 - duplicate event creates at most one award;
 - prompt injection is ignored;

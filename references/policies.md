@@ -11,6 +11,8 @@ Use these policies to validate decks, prevent spam, protect culture, and control
 - Announcement policy
 - Admin policy
 - Verifier decision policy
+- Privacy and retention policy
+- Leaderboard policy
 
 ## Validator checklist
 
@@ -33,7 +35,9 @@ Apply before sealing the daily deck.
 [ ] Role/domain achievements are based on team_profile and daily focus, not hardcoded people.
 [ ] Private deck contains no hardcoded project identifiers except runtime-provided allowed values.
 [ ] Public seal contains no hidden titles, hidden conditions, raw evidence, or seal nonce.
-[ ] Private deck contains a high-entropy seal nonce before the public commitment is written.
+[ ] Private deck contains a high-entropy runtime-generated seal nonce before the public commitment is written.
+[ ] Public seal follows `public_seal` schema and includes no hidden titles, hidden conditions, raw evidence, or seal nonce.
+[ ] `effective_from` is present and no candidate award event occurred before it.
 ```
 
 Repair or regenerate only invalid achievements. Send no chat messages during validation.
@@ -122,14 +126,18 @@ Announce instantly only when:
 
 ```text
 instant_announcements_today < max_instant_announcements_per_day
+AND achievement.announce.mode != evening_batch
 AND (
+  achievement.announce.mode == instant
   rarity in [rare, epic, legendary]
   OR scope == team
   OR event_is_operationally_important_for_the_day == true
 )
 ```
 
-Batch common and uncommon achievements into the evening summary.
+`event_is_operationally_important_for_the_day` means the event materially changes today's delivery risk, blocker status, decision clarity, customer-impact understanding, or completion path for a priority item. It must be supported by normalized event fields.
+
+Batch achievements with `announce.mode == evening_batch` into the evening summary. `instant_if_rare_or_above` may announce instantly only when the rarity, team scope, or operational-importance rule passes.
 
 Preferred instant format:
 
@@ -170,7 +178,7 @@ When admin identity is uncertain, do not reveal hidden conditions.
 Record manual awards as:
 
 ```json
-{"type":"manual_award","achievement_id":"...","user_id":"...","source":"...","reason":"..."}
+{"type":"manual_award","achievement_id":"...","user_id":"...","source":"...","reason":"manual admin correction"}
 ```
 
 Record reversals as:
@@ -181,17 +189,52 @@ Record reversals as:
 
 Never silently edit previous ledger lines.
 
+Manual awards are allowed only when:
+
+- `achievement_id` exists in the sealed deck for that date;
+- the original private condition is still satisfied;
+- evidence references concrete normalized event fields;
+- the correction is marked as `manual_admin_correction`;
+- the correction is append-only.
+
+Manual awards must not create new hidden achievements or bypass sealed private conditions. Useful work that does not match a sealed achievement can be recorded only as non-achievement recognition outside this mechanism.
+
 ## Verifier decision policy
 
 Award only when all of these are true:
 
 - the deterministic trigger matched;
 - no anti-spam rule failed;
-- actor identity is mapped and eligible;
-- the event occurred inside the active local-day window;
+- actor identity is mapped and eligible through canonical `actor.user_id`;
+- display handles are not used for eligibility decisions;
+- `metadata.bot_or_system_event != true`, unless the sealed achievement explicitly allows system events and `scope == team`;
+- `deck.effective_from <= event.occurred_at <= deck.expires_at`;
+- source occurrence time is used instead of webhook delivery time;
 - the sealed private condition is satisfied;
 - `verifier.award == true` for `llm_strict` or `hybrid` verification;
 - `verifier.confidence >= 0.85` for `llm_strict` or `hybrid` verification;
 - evidence references at least one concrete normalized event field.
 
 If confidence is below threshold, do not award. Do not ask the public channel for clarification. Use private admin review only when a configured admin explicitly requests it.
+
+## Privacy and retention policy
+
+Default privacy configuration:
+
+```yaml
+privacy:
+  private_evidence_retention_days: 30
+  store_raw_text: false
+  store_event_hash: true
+  store_source_pointer: true
+  redact_customer_names_in_public: true
+  allow_admin_private_audit: true
+```
+
+Store the minimum private evidence needed for audit. Prefer `event_hash`, normalized field references, and source pointers over full raw text. Store raw text only when the configured private audit policy requires it. Public artifacts must redact customer names, private source URLs, private channel IDs, raw evidence, verifier confidence, and private reasoning.
+
+## Leaderboard policy
+
+Leaderboard is optional. Prefer team-level totals and opened-achievement history over individual ranking.
+
+Do not rank people by availability, response speed, late-night activity, raw message count, or other surveillance-like metrics. Do not use leaderboard output for productivity judgment. Allow opt-out when runtime user preferences support it.

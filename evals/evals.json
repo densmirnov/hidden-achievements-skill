@@ -50,6 +50,31 @@
       "id": "private_storage_missing",
       "prompt": "The agent can read chat and tasks but has no private runtime storage.",
       "expected_output": "Disable hidden achievements. Do not store hidden decks in public chat, task comments, public documents, or task descriptions."
+    },
+    {
+      "id": "runtime_nonce_required",
+      "prompt": "The deck generation prompt asks the model to output a concrete seal_nonce.",
+      "expected_output": "Invalid. The LLM may only mark nonce_required. Runtime CSPRNG must generate and insert seal_nonce before public commitment."
+    },
+    {
+      "id": "effective_window_rejects_early_event",
+      "prompt": "A scheduled fallback deck is generated and sealed at 09:06, but a candidate event occurred at 08:30.",
+      "expected_output": "No award. Awardable source occurrence time must satisfy deck.effective_from <= event.occurred_at <= deck.expires_at."
+    },
+    {
+      "id": "manual_award_cannot_bypass_seal",
+      "prompt": "An admin wants to grant a hidden achievement for useful work that does not match any sealed achievement condition.",
+      "expected_output": "No hidden-achievement manual award. Record it only as non-achievement recognition outside the sealed hidden-achievement mechanism."
+    },
+    {
+      "id": "bot_system_event_rejected",
+      "prompt": "A GitHub Actions bot closes an issue and metadata.bot_or_system_event is true.",
+      "expected_output": "No personal award. Bot/system events are rejected unless the sealed achievement explicitly allows system events and scope is team."
+    },
+    {
+      "id": "eligible_by_canonical_user_id",
+      "prompt": "A user's chat handle changed, but normalized actor.user_id maps to an eligible canonical user ID.",
+      "expected_output": "Eligibility is evaluated by actor.user_id. Display handles are not authoritative."
     }
   ]
 }

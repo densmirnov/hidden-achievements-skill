@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "task_id": "202606021943-MZ08ZH",
+  "evaluator_id": "recovery-context",
+  "evaluator_profile": "EVALUATOR",
+  "generated_at": "2026-06-02T19:45:33.365Z",
+  "verdict": "pass",
+  "summary": "Context layer removal is scoped and verified.",
+  "evaluated_sha": "5a07544a88e5c1e8b67891ad895a1f9bd644fa68",
+  "blueprint_digest": "8a5cd17364a6a9ec635b07604e8262682ebed785f887cdf4015627c612895da2",
+  "findings": [
+    "context/ and .agentplane/context are absent while .agentplane base harness remains; scripts/validate-skill.sh and ap doctor passed."
+  ],
+  "evidence_refs": [
+    ".agentplane/tasks/202606021943-MZ08ZH/README.md",
+    "scripts/validate-skill.sh",
+    "ap doctor"
+  ],
+  "missing_tests": [],
+  "hidden_assumptions": [],
+  "residual_risks": []
+}

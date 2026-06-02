@@ -8,6 +8,7 @@
 .vscode/
 
 runtime/
+dist/
 knowledge/gamification/seals/
 knowledge/gamification/public-ledger.md
 

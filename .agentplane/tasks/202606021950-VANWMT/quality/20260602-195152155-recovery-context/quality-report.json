@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "202606021950-VANWMT",
+  "evaluator_id": "recovery-context",
+  "evaluator_profile": "EVALUATOR",
+  "generated_at": "2026-06-02T19:51:52.155Z",
+  "verdict": "pass",
+  "summary": "Public seal and canonical JSON contract satisfies approved docs scope.",
+  "evaluated_sha": "b60ed056e566ca50a6ce3843159e6adcce215e0b",
+  "blueprint_digest": "0156c9b7bf1704838282bfcd7ad86d4616772e51227777ef62b876a13523b226",
+  "findings": [
+    "Docs use public-seal JSON naming, keep public seal storage required for normal operation, and define canonical-json-v1 runtime compatibility rules; package validation passed."
+  ],
+  "evidence_refs": [
+    ".agentplane/tasks/202606021950-VANWMT/README.md",
+    "scripts/validate-skill.sh"
+  ],
+  "missing_tests": [],
+  "hidden_assumptions": [],
+  "residual_risks": []
+}

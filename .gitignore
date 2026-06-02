@@ -1,0 +1,12 @@
+.DS_Store
+*.swp
+*.swo
+*.tmp
+*.log
+
+.idea/
+.vscode/
+
+runtime/
+knowledge/gamification/seals/
+knowledge/gamification/public-ledger.md

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Hidden Daily Achievements"
+  short_description: "Sealed team achievement workflow"
+  default_prompt: "Use $hidden-daily-achievements to add sealed hidden daily achievements to a team agent."

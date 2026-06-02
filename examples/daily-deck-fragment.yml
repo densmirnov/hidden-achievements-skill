@@ -1,0 +1,133 @@
+version: 1
+date: "2026-01-15"
+timezone: "Etc/UTC"
+generated_at: "2026-01-15T09:05:00+00:00"
+expires_at: "2026-01-15T23:59:59+00:00"
+public_generation_announcement: false
+source:
+  type: "daily_brief"
+  brief_event_id: "brief-2026-01-15"
+  brief_sha256: "sha256:example"
+  project_snapshot_sha256: "sha256:example"
+settings:
+  achievement_count: 12
+  strict_count_mode: false
+  max_instant_announcements_per_day: 4
+  reveal_locked_at_evening: false
+seal:
+  seal_nonce: "base64url-example-128-bit-or-stronger-random"
+  canonicalization:
+    json_object_keys: "lexicographic"
+    encoding: "UTF-8"
+    whitespace: "none"
+    array_order: "preserved"
+    timestamps: "ISO-8601-with-timezone"
+achievements:
+  - id: "2026-01-15-fog-cutter"
+    title: "Fog Cutter"
+    visibility: "hidden"
+    category: "communication"
+    rarity: "uncommon"
+    scope: "personal"
+    eligible_users: ["@user1", "@user2", "@user3"]
+    target_context:
+      focus_terms: ["decision", "owner", "deadline", "next step"]
+      related_tasks: []
+      related_statuses: []
+      related_domains: ["operations"]
+    private_condition: "A user turns a fuzzy discussion into a clear decision, owner, next step, and deadline."
+    trigger:
+      any:
+        - event_type: "chat_message_created"
+          text_contains_any: ["decision", "owner", "deadline", "next step", "summary"]
+          min_meaningful_chars: 80
+        - event_type: "task_comment_created"
+          text_contains_any: ["decision", "owner", "deadline", "next step", "summary"]
+          min_meaningful_chars: 80
+    verifier:
+      type: "llm_strict"
+      require_meaningful_progress: true
+      reject_if_only_mentions_keyword: true
+    anti_spam:
+      once_per_user_per_day: true
+      once_per_achievement_per_day: false
+      min_meaningful_chars: 80
+      ignore_messages_with_only_keywords: true
+    reward:
+      xp: 10
+    announce:
+      mode: "evening_batch"
+      text: "🔍 @{user} opened hidden achievement: “Fog Cutter”. The next step is visible now."
+
+  - id: "2026-01-15-blocker-named"
+    title: "Blocker Named"
+    visibility: "hidden"
+    category: "operations"
+    rarity: "common"
+    scope: "personal"
+    eligible_users: ["@user1", "@user2", "@user3"]
+    target_context:
+      focus_terms: ["blocked", "need answer", "waiting", "risk"]
+      related_tasks: []
+      related_statuses: ["Blocked", "Need answer"]
+      related_domains: []
+    private_condition: "A user clearly states a blocker, its cause, and the next action needed."
+    trigger:
+      any:
+        - event_type: "task_status_changed"
+          to_status_any: ["Blocked", "Need answer"]
+        - event_type: "chat_message_created"
+          text_contains_any: ["blocked", "blocker", "waiting", "need answer", "cannot continue"]
+          min_meaningful_chars: 40
+    verifier:
+      type: "hybrid"
+      require_meaningful_progress: true
+      reject_if_only_mentions_keyword: true
+    anti_spam:
+      once_per_user_per_day: true
+      once_per_achievement_per_day: false
+      min_meaningful_chars: 40
+      ignore_messages_with_only_keywords: true
+    reward:
+      xp: 5
+    announce:
+      mode: "evening_batch"
+      text: "🧱 @{user} opened hidden achievement: “Blocker Named”. Obstacles are easier to fight when named."
+
+  - id: "2026-01-15-capybara-of-context"
+    title: "Capybara of Context"
+    visibility: "hidden"
+    category: "weird"
+    rarity: "legendary"
+    scope: "personal"
+    eligible_users: ["@user1", "@user2", "@user3"]
+    target_context:
+      focus_terms: ["capybara", "customer", "delivery", "decision", "metric"]
+      related_tasks: []
+      related_statuses: []
+      related_domains: ["customer", "delivery", "knowledge"]
+    private_condition: "A user mentions 'capybara' in a message that also contains a useful project insight, metric, user signal, operational risk, or decision."
+    trigger:
+      any:
+        - event_type: "chat_message_created"
+          text_contains_any: ["capybara"]
+          also_contains_any: ["customer", "metric", "decision", "risk", "delivery", "conversion", "user"]
+          min_meaningful_chars: 80
+        - event_type: "task_comment_created"
+          text_contains_any: ["capybara"]
+          also_contains_any: ["customer", "metric", "decision", "risk", "delivery", "conversion", "user"]
+          min_meaningful_chars: 80
+    verifier:
+      type: "llm_strict"
+      require_meaningful_progress: true
+      reject_if_only_mentions_keyword: true
+    anti_spam:
+      once_per_user_per_day: true
+      once_per_achievement_per_day: true
+      min_meaningful_chars: 80
+      ignore_messages_with_only_keywords: true
+    reward:
+      xp: 40
+    announce:
+      mode: "instant"
+      text: "🦫 @{user} opened legendary hidden achievement: “Capybara of Context”. The metrics are mildly confused."

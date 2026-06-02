@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "202606021949-281TAX",
+  "evaluator_id": "recovery-context",
+  "evaluator_profile": "EVALUATOR",
+  "generated_at": "2026-06-02T19:51:51.398Z",
+  "verdict": "pass",
+  "summary": "Announcement predicate fix satisfies approved docs scope.",
+  "evaluated_sha": "b60ed056e566ca50a6ce3843159e6adcce215e0b",
+  "blueprint_digest": "a2aa647b0b3b35f206a748bcfb4e655429d16284268a3c689ebec5cd9e60239a",
+  "findings": [
+    "The predicate now uses explicit OR before rarity in SKILL.md, INSTALL.md, and references/policies.md; package validation and routing checks passed."
+  ],
+  "evidence_refs": [
+    ".agentplane/tasks/202606021949-281TAX/README.md",
+    "scripts/validate-skill.sh"
+  ],
+  "missing_tests": [],
+  "hidden_assumptions": [],
+  "residual_risks": []
+}

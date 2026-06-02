@@ -63,7 +63,7 @@ ruby -e 'require "psych"; Psych.load_file("agents/openai.yaml"); Psych.load_file
 jq . evals/evals.json >/dev/null
 printf 'json ok\n'
 
-if find . \( -name '.DS_Store' -o -name '*.swp' -o -name '*.swo' \) -print | grep -q .; then
+if find . -path './.git' -prune -o \( -name '.DS_Store' -o -name '*.swp' -o -name '*.swo' \) -print | grep -q .; then
   fail "workspace contains ignored editor or OS artifacts"
 fi
 

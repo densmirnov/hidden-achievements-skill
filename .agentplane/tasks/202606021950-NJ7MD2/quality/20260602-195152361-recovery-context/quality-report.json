@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "202606021950-NJ7MD2",
+  "evaluator_id": "recovery-context",
+  "evaluator_profile": "EVALUATOR",
+  "generated_at": "2026-06-02T19:51:52.361Z",
+  "verdict": "pass",
+  "summary": "Fallback and manual correction schema cleanup satisfies approved docs scope.",
+  "evaluated_sha": "b60ed056e566ca50a6ce3843159e6adcce215e0b",
+  "blueprint_digest": "5b5bec8b1b6a131bd3bdd59c867277e9cd6ca77877faaadc1e3866586a41b86f",
+  "findings": [
+    "Prompt/source guidance uses reason instead of fallback_reason, and manual correction ledger entries include admin audit fields without adding the excluded eval runner."
+  ],
+  "evidence_refs": [
+    ".agentplane/tasks/202606021950-NJ7MD2/README.md",
+    "scripts/validate-skill.sh"
+  ],
+  "missing_tests": [],
+  "hidden_assumptions": [],
+  "residual_risks": []
+}

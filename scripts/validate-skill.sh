@@ -63,8 +63,12 @@ ruby -e 'require "psych"; Psych.load_file("agents/openai.yaml"); Psych.load_file
 jq . evals/evals.json >/dev/null
 printf 'json ok\n'
 
-if find . -path './.git' -prune -o \( -name '.DS_Store' -o -name '*.swp' -o -name '*.swo' \) -print | grep -q .; then
-  fail "workspace contains ignored editor or OS artifacts"
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  if git ls-files | grep -E '(^|/)(\.DS_Store|.*\.swp|.*\.swo)$' >/dev/null; then
+    fail "tracked editor or OS artifact found"
+  fi
+elif find . -path './.git' -prune -o \( -name '.DS_Store' -o -name '*.swp' -o -name '*.swo' \) -print | grep -q .; then
+  fail "workspace contains editor or OS artifacts"
 fi
 
 if grep -R -nE 'deck_sha256|Require as many|Generate exactly 12|Deck contains exactly 12|version: 0\.' \

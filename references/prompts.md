@@ -73,7 +73,7 @@ version: 1
 date: "YYYY-MM-DD"
 timezone: "{{timezone}}"
 generated_at: "ISO-8601"
-effective_from: "ISO-8601"
+effective_from: "{{runtime_inserted_after_public_seal_write}}"
 expires_at: "ISO-8601"
 public_generation_announcement: false
 source:
@@ -82,15 +82,23 @@ source:
   brief_sha256: "sha256:..."
   project_snapshot_sha256: "sha256:..."
   recent_context_sha256: "sha256:..."
-  fallback_reason: "daily_brief_event_unavailable"
+  reason: "daily_brief_event_unavailable"
 settings:
   achievement_count: 12
   strict_count_mode: false
   max_instant_announcements_per_day: 4
+  trust_mode: "public_commitment_required|private_only_dev"
   reveal_locked_at_evening: false
 seal:
   nonce_required: true
   nonce_generated_by: "runtime_csprng"
+  nonce_bytes_min: 16
+  canonicalization:
+    json_object_keys: "lexicographic"
+    encoding: "UTF-8"
+    whitespace: "none"
+    array_order: "preserved"
+    timestamps: "ISO-8601-with-timezone"
 achievements:
   - id: "YYYY-MM-DD-short-kebab-id"
     title: "Short playful title in the configured language"
@@ -113,6 +121,7 @@ achievements:
       type: "deterministic|llm_strict|hybrid"
       require_meaningful_progress: true
       reject_if_only_mentions_keyword: true
+      allow_system_events: false
     anti_spam:
       once_per_user_per_day: true
       once_per_achievement_per_day: false
@@ -124,6 +133,10 @@ achievements:
       mode: "instant|instant_if_rare_or_above|evening_batch"
       text: "Announcement template with @{user}, {title}, and a short reason."
 ```
+
+Use the daily brief source fields only when `source.type == daily_brief`. For `source.type == scheduled_snapshot`, omit `brief_event_id` and `brief_sha256`, include `generated_after`, `recent_context_window_hours`, `project_snapshot_sha256`, `recent_context_sha256`, and use `reason`, not `fallback_reason`.
+
+The LLM must not assign the final `effective_from` timestamp. Runtime sets `effective_from` after the private deck is validated, the nonce is inserted, and the public seal is successfully written. In `private_only_dev` mode, runtime sets `effective_from` after private sealed state is durably stored.
 
 ## Strict verifier prompt
 

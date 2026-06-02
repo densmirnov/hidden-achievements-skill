@@ -285,19 +285,21 @@ achievements:
       text: "✨ @{user} opened hidden achievement: “{title}”. {short_reason}"
 ```
 
-The LLM returns a valid private deck draft with `seal.nonce_required: true` and without a concrete nonce value. The runtime must then:
+The LLM returns a valid private deck draft with `seal.nonce_required: true`, without a concrete nonce value, and without assigning the final `effective_from` timestamp. The runtime must then:
 
 1. generate `seal_nonce` using a cryptographically secure random generator;
 2. insert the nonce only into private runtime state;
 3. compute the public commitment;
 4. write only the public seal;
-5. never expose the nonce unless a configured private admin audit or reveal flow explicitly requires it.
+5. set `effective_from` after the public seal is successfully written;
+6. never expose the nonce unless a configured private admin audit or reveal flow explicitly requires it.
 
-`effective_from` must be the timestamp at which the validated deck becomes sealed and awardable. For scheduled fallback, it must not be earlier than generation completion.
+`effective_from` must be the timestamp at which the validated deck becomes sealed and awardable. For scheduled fallback, it must not be earlier than generation completion. In `private_only_dev` mode, runtime sets `effective_from` after private sealed state is durably stored.
 
 ## Public seal schema
 
 ```yaml
+file: "knowledge/gamification/seals/YYYY-MM-DD.public-seal.json"
 public_seal:
   version: 1
   date: "YYYY-MM-DD"
@@ -323,7 +325,17 @@ sealed_payload = private_daily_deck excluding:
 commitment = sha256(canonical_json(sealed_payload) + "\n" + seal_nonce)
 ```
 
-Use canonical JSON with lexicographic object keys, UTF-8 encoding, no insignificant whitespace, preserved array order, and ISO-8601 timestamps with timezone. Public seal files must not include hidden titles, private conditions, raw evidence, private source URLs, verifier output, or `seal_nonce`.
+Use `canonical-json-v1` with lexicographic object keys, UTF-8 encoding, no insignificant whitespace, preserved array order, and ISO-8601 timestamps with timezone. For runtime compatibility:
+
+- no floats in the sealed payload;
+- integers are serialized as JSON numbers;
+- strings are normalized to Unicode NFC before hashing;
+- object keys are sorted by Unicode code point;
+- `canonical_json(payload)` has no trailing newline;
+- the commitment input is exactly `canonical_json(payload) + "\n" + seal_nonce`;
+- `seal_nonce` is base64url without padding and generated from at least 16 random bytes.
+
+Public seal files must not include hidden titles, private conditions, raw evidence, private source URLs, verifier output, or `seal_nonce`.
 
 Scheduled snapshot fallback source:
 
@@ -438,10 +450,15 @@ Manual award correction entry:
   "date": "YYYY-MM-DD",
   "achievement_id": "YYYY-MM-DD-short-kebab-id",
   "user_id": "user_1",
+  "admin_user_id": "user_admin",
+  "admin_action_event_id": "admin:dm:message_id",
+  "created_at": "YYYY-MM-DDTHH:MM:SS+00:00",
   "awarded_at": "YYYY-MM-DDTHH:MM:SS+00:00",
   "source_event_id": "chat:channel:message_id",
+  "original_event_id": "chat:channel:message_id",
   "event_hash": "sha256:...",
   "evidence": ["event.text", "event.related_task.id"],
+  "correction_reason_private": "Concrete admin-only correction rationale.",
   "reason": "manual admin correction"
 }
 ```
@@ -455,6 +472,9 @@ Reversal correction entry:
   "date": "YYYY-MM-DD",
   "achievement_id": "YYYY-MM-DD-short-kebab-id",
   "user_id": "user_1",
+  "admin_user_id": "user_admin",
+  "admin_action_event_id": "admin:dm:message_id",
+  "created_at": "YYYY-MM-DDTHH:MM:SS+00:00",
   "reversed_at": "YYYY-MM-DDTHH:MM:SS+00:00",
   "reason": "manual admin correction"
 }

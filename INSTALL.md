@@ -95,7 +95,7 @@ knowledge/gamification/
   rules.md
   public-ledger.md
   seals/
-    YYYY-MM-DD.sha256
+    YYYY-MM-DD.public-seal.json
 ```
 
 Never publish hidden titles, hidden conditions, seal nonces, verifier reasoning, raw evidence, private source URLs, customer names, or private channel IDs.
@@ -179,7 +179,7 @@ instant_announcements_today < max_instant_announcements_per_day
 AND achievement.announce.mode != evening_batch
 AND (
   achievement.announce.mode == instant
-  rarity in [rare, epic, legendary]
+  OR rarity in [rare, epic, legendary]
   OR scope == team
   OR event_is_operationally_important_for_the_day == true
 )

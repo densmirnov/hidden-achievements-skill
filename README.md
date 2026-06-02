@@ -57,13 +57,11 @@ Example evening summary:
 
 ```text
 🎮 Hidden achievements today
-Opened: 5 / 12
-
 🔍 @user1 - "Fog Cutter"
 🧱 @user2 - "Blocker Named"
 ✅ Team - "All Signals Green"
 
-7 achievements remained hidden 🔒
+Some achievements remained hidden 🔒
 ```
 
 Locked titles and locked conditions stay hidden.
@@ -230,8 +228,8 @@ The metrics are useful. The mascot is unexplained.
 The agent creates the deck after a daily brief or scheduled workday snapshot, stores hidden titles and conditions in private runtime state, generates the seal nonce through runtime CSPRNG, and publishes only a salted commitment.
 
 ```text
-knowledge/gamification/seals/2026-06-03.sha256
-sha256: 9e9d... public commitment only
+knowledge/gamification/seals/2026-06-03.public-seal.json
+{"commitment":"sha256:9e9d...","algorithm":"sha256","canonicalization":"canonical-json-v1"}
 ```
 
 ### 2. Useful work can open an achievement
@@ -333,7 +331,7 @@ The skill follows progressive disclosure:
 
 - `SKILL.md` is the compact operating guide.
 - `references/` contains longer implementation details.
-- `examples/` contains reusable deck fragments.
+- `examples/` contains schema examples and illustrative deck fragments, not reusable daily decks.
 - `evals/` contains behavior-focused regression cases.
 
 The hidden deck must stay in private runtime storage. Public storage should contain only non-secret seal commitments and opened-award summaries.

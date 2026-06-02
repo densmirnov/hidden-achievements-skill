@@ -31,7 +31,7 @@ Do not run this skill unless the agent can:
 
 If private runtime state is unavailable, disable hidden achievements. Do not store hidden decks in public chat, task descriptions, task comments, public documents, or normal team channels.
 
-Optional sources improve quality: daily brief, project board, knowledge base, decision log, weekly focus, sprint context, and public seal storage.
+Optional sources improve deck quality: daily brief, project board, knowledge base, decision log, weekly focus, and sprint context.
 
 For normal team operation, public seal storage is required. If public seal storage is unavailable, run only in `private_only_dev` mode and do not claim public anti-retroactive auditability.
 
@@ -94,7 +94,7 @@ knowledge/gamification/
   rules.md
   public-ledger.md
   seals/
-    YYYY-MM-DD.sha256
+    YYYY-MM-DD.public-seal.json
 ```
 
 Use private runtime storage for hidden decks and full evidence:
@@ -123,7 +123,7 @@ instant_announcements_today < max_instant_announcements_per_day
 AND achievement.announce.mode != evening_batch
 AND (
   achievement.announce.mode == instant
-  rarity in [rare, epic, legendary]
+  OR rarity in [rare, epic, legendary]
   OR scope == team
   OR event_is_operationally_important_for_the_day == true
 )

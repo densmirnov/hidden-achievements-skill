@@ -129,7 +129,7 @@ instant_announcements_today < max_instant_announcements_per_day
 AND achievement.announce.mode != evening_batch
 AND (
   achievement.announce.mode == instant
-  rarity in [rare, epic, legendary]
+  OR rarity in [rare, epic, legendary]
   OR scope == team
   OR event_is_operationally_important_for_the_day == true
 )
@@ -178,7 +178,7 @@ When admin identity is uncertain, do not reveal hidden conditions.
 Record manual awards as:
 
 ```json
-{"type":"manual_award","achievement_id":"...","user_id":"...","source":"...","reason":"manual admin correction"}
+{"type":"manual_award","correction_type":"manual_admin_correction","achievement_id":"...","user_id":"...","admin_user_id":"...","admin_action_event_id":"...","original_event_id":"...","reason":"manual admin correction"}
 ```
 
 Record reversals as:

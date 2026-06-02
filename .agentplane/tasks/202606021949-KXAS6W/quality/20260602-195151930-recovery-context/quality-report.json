@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "202606021949-KXAS6W",
+  "evaluator_id": "recovery-context",
+  "evaluator_profile": "EVALUATOR",
+  "generated_at": "2026-06-02T19:51:51.930Z",
+  "verdict": "pass",
+  "summary": "Prompt schema alignment satisfies approved docs scope.",
+  "evaluated_sha": "b60ed056e566ca50a6ce3843159e6adcce215e0b",
+  "blueprint_digest": "46634f196a5ea2068193ecc4fa3e6b563940d60062c9169e39984796c299f6d2",
+  "findings": [
+    "references/prompts.md marks effective_from as runtime-inserted and includes trust_mode, nonce_bytes_min, canonicalization, and allow_system_events; package validation passed."
+  ],
+  "evidence_refs": [
+    ".agentplane/tasks/202606021949-KXAS6W/README.md",
+    "scripts/validate-skill.sh"
+  ],
+  "missing_tests": [],
+  "hidden_assumptions": [],
+  "residual_risks": []
+}

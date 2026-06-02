@@ -2,6 +2,8 @@
 
 # Hidden Daily Achievements Skill
 
+**Version:** v0.1.0
+
 Hidden Daily Achievements is an agent skill for adding sealed hidden achievements to normal team work without leaking conditions, inventing awards after the fact, or rewarding spam.
 
 Every workday the agent silently creates a private deck of hidden achievements, seals it so awards cannot be invented later, watches normal team events during the day, and reveals only the achievements that were actually opened.

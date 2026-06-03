@@ -45,6 +45,7 @@ case "$VERSION" in
 esac
 
 OUT_DIR="${OUT_DIR:-dist/releases}"
+SOURCE_REF="${RELEASE_SOURCE_REF:-HEAD}"
 ARCHIVE_BASENAME="${SKILL_NAME}-${VERSION}"
 ARCHIVE_PATH="${OUT_DIR}/${ARCHIVE_BASENAME}.tar.gz"
 MANIFEST_PATH="${OUT_DIR}/${ARCHIVE_BASENAME}.manifest.json"
@@ -52,21 +53,20 @@ CHECKSUM_PATH="${ARCHIVE_PATH}.sha256"
 
 mkdir -p "$OUT_DIR"
 
-python3 - "$SKILL_NAME" "$VERSION" "$ARCHIVE_BASENAME" "$ARCHIVE_PATH" "$MANIFEST_PATH" <<'PY'
+python3 - "$SKILL_NAME" "$VERSION" "$SOURCE_REF" "$ARCHIVE_BASENAME" "$ARCHIVE_PATH" "$MANIFEST_PATH" <<'PY'
 from __future__ import annotations
 
 import gzip
 import hashlib
 import io
 import json
-import os
 import subprocess
 import sys
 import tarfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-skill_name, version, archive_basename, archive_path, manifest_path = sys.argv[1:]
+skill_name, version, source_ref, archive_basename, archive_path, manifest_path = sys.argv[1:]
 root = Path.cwd()
 archive = root / archive_path
 manifest = root / manifest_path
@@ -83,34 +83,34 @@ allowlist = [
     "evals",
     "examples",
     "references",
-    "scripts",
 ]
 
 def git(args: list[str]) -> str:
     return subprocess.check_output(["git", *args], text=True).strip()
 
-tracked = set(git(["ls-files"]).splitlines())
-selected: list[Path] = []
+git_commit = git(["rev-parse", f"{source_ref}^{{}}"])
+tracked = set(git(["ls-tree", "-r", "--name-only", git_commit]).splitlines())
+selected: list[str] = []
 for item in allowlist:
-    path = root / item
-    if path.is_file() and item in tracked:
-        selected.append(path)
-    elif path.is_dir():
-        prefix = item.rstrip("/") + "/"
-        for tracked_path in sorted(p for p in tracked if p.startswith(prefix)):
-            selected.append(root / tracked_path)
+    if item in tracked:
+        selected.append(item)
+        continue
+
+    prefix = item.rstrip("/") + "/"
+    for tracked_path in sorted(p for p in tracked if p.startswith(prefix)):
+        selected.append(tracked_path)
 
 if not selected:
     raise SystemExit("release file allowlist selected no tracked files")
 
-git_commit = git(["rev-parse", "HEAD"])
-dirty = bool(subprocess.check_output(["git", "status", "--short", "--untracked-files=no"], text=True).strip())
+dirty = source_ref in {"HEAD", ""} and bool(subprocess.check_output(["git", "status", "--short", "--untracked-files=no"], text=True).strip())
 built_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 entries = []
-for path in selected:
-    rel = path.relative_to(root).as_posix()
-    data = path.read_bytes()
+file_data: dict[str, bytes] = {}
+for rel in selected:
+    data = subprocess.check_output(["git", "show", f"{git_commit}:{rel}"])
+    file_data[rel] = data
     entries.append({
         "path": rel,
         "bytes": len(data),
@@ -134,21 +134,14 @@ archive.parent.mkdir(parents=True, exist_ok=True)
 with archive.open("wb") as raw:
     with gzip.GzipFile(filename="", mode="wb", fileobj=raw, mtime=0) as gz:
         with tarfile.open(fileobj=gz, mode="w") as tar:
-            for path in selected:
-                rel = path.relative_to(root).as_posix()
-                data = path.read_bytes()
+            for rel in selected:
+                data = file_data[rel]
                 info = tarfile.TarInfo(f"{archive_basename}/{rel}")
                 info.size = len(data)
-                info.mode = 0o755 if os.access(path, os.X_OK) else 0o644
+                mode = git(["ls-tree", git_commit, rel]).split()[0]
+                info.mode = int(mode[-3:], 8)
                 info.mtime = 0
                 tar.addfile(info, io.BytesIO(data))
-
-            manifest_bytes = manifest.read_bytes()
-            info = tarfile.TarInfo(f"{archive_basename}/release-manifest.json")
-            info.size = len(manifest_bytes)
-            info.mode = 0o644
-            info.mtime = 0
-            tar.addfile(info, io.BytesIO(manifest_bytes))
 
 print(archive_path)
 PY
